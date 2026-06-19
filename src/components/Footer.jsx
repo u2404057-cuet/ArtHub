@@ -54,7 +54,7 @@ export default function Footer() {
           {/* Newsletter / Stay Tuned */}
           <div className="space-y-4">
             <h3 className="text-xs font-semibold text-[#1E1E1E] uppercase tracking-wider font-['DM_Sans']">
-              Collector's Letter
+              Collector Letter
             </h3>
             <p className="text-sm text-[#6B6560] font-['DM_Sans'] leading-relaxed">
               Subscribe to receive updates on new exhibitions and artist spotlights.
