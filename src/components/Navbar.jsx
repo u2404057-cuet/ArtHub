@@ -14,13 +14,14 @@ import {
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isDashboardDropdownOpen, setIsDashboardDropdownOpen] = useState(false);
   const pathname = usePathname();
 
   // Mock authentication status (can be wired to Better Auth later)
   const [user, setUser] = useState({
     name: "Evelyn Reed",
     email: "evelyn@arthub.com",
-    role: "artist"
+    role: "artist" // 'user' (buyer), 'artist', 'admin'
   });
 
   const navLinks = [
@@ -28,9 +29,35 @@ export default function Navbar() {
     { name: "Browse Artworks", href: "/artworks" },
   ];
 
+  // Dynamic Dashboard links based on role
+  const getDashboardLinks = (role) => {
+    switch (role) {
+      case "admin":
+        return [
+          { name: "Overview", href: "/dashboard/admin" },
+          { name: "Manage Users", href: "/dashboard/admin/users" },
+          { name: "Manage Artworks", href: "/dashboard/admin/artworks" },
+        ];
+      case "artist":
+        return [
+          { name: "Overview", href: "/dashboard/artist" },
+          { name: "My Gallery", href: "/dashboard/artist/gallery" },
+          { name: "Upload Artwork", href: "/dashboard/artist/upload" },
+        ];
+      case "user":
+      default:
+        return [
+          { name: "Overview", href: "/dashboard/user" },
+          { name: "My Orders", href: "/dashboard/user/orders" },
+          { name: "Wishlist", href: "/dashboard/user/wishlist" },
+        ];
+    }
+  };
+
   const handleLogout = () => {
     setUser(null);
     setIsProfileOpen(false);
+    setIsDashboardDropdownOpen(false);
   };
 
   const cycleRole = () => {
@@ -43,6 +70,7 @@ export default function Navbar() {
     } else {
       setUser(null);
     }
+    setIsDashboardDropdownOpen(false);
   };
 
   const isActive = (href) => {
@@ -97,6 +125,50 @@ export default function Navbar() {
                   </Link>
                 );
               })}
+
+              {/* Dynamic Dashboard Dropdown in main links */}
+              {user && (
+                <div className="relative inline-flex items-center">
+                  <button
+                    onClick={() => setIsDashboardDropdownOpen(!isDashboardDropdownOpen)}
+                    onMouseEnter={() => setIsDashboardDropdownOpen(true)}
+                    className={`relative inline-flex items-center gap-1 px-1 pt-1 text-[15px] font-['DM_Sans'] font-medium transition-colors duration-200 h-20 focus:outline-none cursor-pointer ${
+                      pathname?.startsWith("/dashboard") 
+                        ? "text-[#C2693F]" 
+                        : "text-[#6B6560] hover:text-[#1E1E1E]"
+                    }`}
+                  >
+                    <span>Dashboard</span>
+                    <ArrowChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isDashboardDropdownOpen ? "rotate-180" : ""}`} />
+                    {pathname?.startsWith("/dashboard") && (
+                      <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#C2693F]" />
+                    )}
+                  </button>
+
+                  {/* Submenu on Hover/Click */}
+                  {isDashboardDropdownOpen && (
+                    <div 
+                      onMouseLeave={() => setIsDashboardDropdownOpen(false)}
+                      className="absolute left-0 top-20 w-48 bg-[#F7F4EF] border border-[#D6CFC4] rounded-[8px] shadow-lg py-1.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150"
+                    >
+                      {getDashboardLinks(user.role).map((subLink) => (
+                        <Link
+                          key={subLink.href}
+                          href={subLink.href}
+                          onClick={() => setIsDashboardDropdownOpen(false)}
+                          className={`block px-4 py-2 text-sm font-['DM_Sans'] transition-colors ${
+                            pathname === subLink.href
+                              ? "text-[#C2693F] bg-[#EDE9E1]/55"
+                              : "text-[#6B6560] hover:text-[#1E1E1E] hover:bg-[#EDE9E1]"
+                          }`}
+                        >
+                          {subLink.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -136,7 +208,7 @@ export default function Navbar() {
                       className="block px-4 py-2 text-sm text-[#6B6560] hover:text-[#1E1E1E] hover:bg-[#EDE9E1] transition-colors font-['DM_Sans']"
                       onClick={() => setIsProfileOpen(false)}
                     >
-                      Dashboard
+                      Dashboard Home
                     </Link>
 
                     <button
@@ -213,26 +285,29 @@ export default function Navbar() {
                   </div>
                 </div>
                 
-                <Link
-                  href={
-                    user.role === "admin" 
-                      ? "/dashboard/admin" 
-                      : user.role === "artist" 
-                        ? "/dashboard/artist" 
-                        : "/dashboard/user"
-                  }
-                  className="block px-3 py-2 rounded-md text-base font-medium text-[#6B6560] hover:text-[#1E1E1E] hover:bg-[#EDE9E1] font-['DM_Sans']"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Dashboard
-                </Link>
+                {/* Dynamic Mobile Dashboard Links */}
+                <div className="pl-3 border-l border-[#D6CFC4] my-2 space-y-1">
+                  <span className="block text-[11px] uppercase tracking-wider font-['DM_Mono'] text-[#6B6560] mb-2">Dashboard Actions</span>
+                  {getDashboardLinks(user.role).map((subLink) => (
+                    <Link
+                      key={subLink.href}
+                      href={subLink.href}
+                      onClick={() => setIsOpen(false)}
+                      className={`block py-1.5 text-sm font-medium font-['DM_Sans'] ${
+                        pathname === subLink.href ? "text-[#C2693F]" : "text-[#6B6560]"
+                      }`}
+                    >
+                      • {subLink.name}
+                    </Link>
+                  ))}
+                </div>
                 
                 <button
                   onClick={() => {
                     handleLogout();
                     setIsOpen(false);
                   }}
-                  className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-[#B94A3A] hover:bg-[#B94A3A]/5 font-['DM_Sans'] mt-1"
+                  className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-[#B94A3A] hover:bg-[#B94A3A]/5 font-['DM_Sans'] mt-3"
                 >
                   Log Out
                 </button>
