@@ -130,7 +130,7 @@ export default function Register() {
                     {...register("role")}
                     className="h-4 w-4 text-[#C2693F] border-[#D6CFC4] focus:ring-[#C2693F]"
                   />
-                  <span className="ml-2 text-sm text-[#1E1E1E] font-['DM_Sans']">Art Collector</span>
+                  <span className="ml-2 text-sm text-[#1E1E1E] font-['DM_Sans']">Buyer</span>
                 </label>
                 <label className="flex items-center cursor-pointer select-none">
                   <input
@@ -139,7 +139,7 @@ export default function Register() {
                     {...register("role")}
                     className="h-4 w-4 text-[#C2693F] border-[#D6CFC4] focus:ring-[#C2693F]"
                   />
-                  <span className="ml-2 text-sm text-[#1E1E1E] font-['DM_Sans']">Independent Artist</span>
+                  <span className="ml-2 text-sm text-[#1E1E1E] font-['DM_Sans']">Artist</span>
                 </label>
               </div>
             </div>
