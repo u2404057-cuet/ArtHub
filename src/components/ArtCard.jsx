@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -39,14 +41,20 @@ export default function ArtCard({ artwork }) {
           </p>
         </div>
 
-        {/* Action Button: Show Details */}
-        <div className="pt-3 border-t border-[#D6CFC4]/50">
+        {/* Action Buttons: Details and Buy Artwork */}
+        <div className="pt-3 border-t border-[#D6CFC4]/50 flex gap-3">
           <Link
             href={`/artworks/${id}`}
-            className="w-full h-9 inline-flex items-center justify-center border border-[#D6CFC4] bg-transparent text-[#1E1E1E] text-xs font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#F7F4EF] hover:border-[#C2693F] hover:text-[#C2693F] transition-colors duration-200 cursor-pointer text-center"
+            className="flex-grow basis-1/2 h-9 inline-flex items-center justify-center border border-[#D6CFC4] bg-transparent text-[#1E1E1E] text-xs font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#F7F4EF] hover:border-[#C2693F] hover:text-[#C2693F] transition-colors duration-200 cursor-pointer text-center"
           >
-            Show Details
+            Details
           </Link>
+          <button
+            onClick={() => alert(`Purchased ${title}!`)}
+            className="flex-grow basis-1/2 h-9 inline-flex items-center justify-center bg-[#C2693F] text-[#F7F4EF] text-xs font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#A3522E] transition-colors duration-200 cursor-pointer shadow-sm text-center"
+          >
+            Buy Artwork
+          </button>
         </div>
       </div>
     </div>

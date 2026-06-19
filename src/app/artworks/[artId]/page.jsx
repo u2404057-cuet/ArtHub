@@ -118,16 +118,11 @@ export default async function ArtworkDetailsPage({ params }) {
             </div>
 
             {/* CTAs */}
-            <div className="pt-4 space-y-3">
+            <div className="pt-4">
               <button 
                 className="w-full h-11 px-5 inline-flex items-center justify-center bg-[#C2693F] text-[#F7F4EF] text-sm font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#A3522E] transition-colors duration-200 cursor-pointer shadow-sm"
               >
-                Acquire Artwork
-              </button>
-              <button 
-                className="w-full h-11 px-5 inline-flex items-center justify-center border border-[#D6CFC4] bg-transparent text-[#1E1E1E] text-sm font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#EDE9E1] transition-colors duration-200 cursor-pointer"
-              >
-                Add to Wishlist
+                Buy Artwork
               </button>
             </div>
           </div>

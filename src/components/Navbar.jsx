@@ -16,7 +16,6 @@ import Image from "next/image";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isDashboardDropdownOpen, setIsDashboardDropdownOpen] = useState(false);
   const pathname = usePathname();
 
   // Better Auth Session Hook
@@ -30,7 +29,7 @@ export default function Navbar() {
 
   // Dynamic Dashboard links based on role (defaults to buyer/user role if not set)
   const getDashboardLinks = (role) => {
-    const userRole = role || "user";
+    const userRole = role || "buyer";
     switch (userRole) {
       case "admin":
         return [
@@ -44,6 +43,7 @@ export default function Navbar() {
           { name: "My Gallery", href: "/dashboard/artist/gallery" },
           { name: "Upload Artwork", href: "/dashboard/artist/upload" },
         ];
+      case "buyer":
       case "user":
       default:
         return [
@@ -67,7 +67,6 @@ export default function Navbar() {
       console.error("Logout failed:", err);
     }
     setIsProfileOpen(false);
-    setIsDashboardDropdownOpen(false);
   };
 
   const isActive = (href) => {
@@ -75,6 +74,14 @@ export default function Navbar() {
       return pathname === "/";
     }
     return pathname?.startsWith(href);
+  };
+
+  // Get dynamic path based on user role
+  const getDashboardHref = (role) => {
+    const userRole = role || "buyer";
+    if (userRole === "admin") return "/dashboard/admin";
+    if (userRole === "artist") return "/dashboard/artist";
+    return "/dashboard/user";
   };
 
   return (
@@ -112,48 +119,21 @@ export default function Navbar() {
                 );
               })}
 
-              {/* Dynamic Dashboard Dropdown in main links */}
+              {/* Dynamic Clickable Dashboard link based on role */}
               {user && (
-                <div className="relative inline-flex items-center">
-                  <button
-                    onClick={() => setIsDashboardDropdownOpen(!isDashboardDropdownOpen)}
-                    onMouseEnter={() => setIsDashboardDropdownOpen(true)}
-                    className={`relative inline-flex items-center gap-1 px-1 pt-1 text-[15px] font-['DM_Sans'] font-medium transition-colors duration-200 h-20 focus:outline-none cursor-pointer ${
-                      pathname?.startsWith("/dashboard") 
-                        ? "text-[#C2693F]" 
-                        : "text-[#6B6560] hover:text-[#1E1E1E]"
-                    }`}
-                  >
-                    <span>Dashboard</span>
-                    <ArrowChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isDashboardDropdownOpen ? "rotate-180" : ""}`} />
-                    {pathname?.startsWith("/dashboard") && (
-                      <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#C2693F]" />
-                    )}
-                  </button>
-
-                  {/* Submenu on Hover/Click */}
-                  {isDashboardDropdownOpen && (
-                    <div 
-                      onMouseLeave={() => setIsDashboardDropdownOpen(false)}
-                      className="absolute left-0 top-20 w-48 bg-[#F7F4EF] border border-[#D6CFC4] rounded-[8px] shadow-lg py-1.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150"
-                    >
-                      {getDashboardLinks(user.role).map((subLink) => (
-                        <Link
-                          key={subLink.href}
-                          href={subLink.href}
-                          onClick={() => setIsDashboardDropdownOpen(false)}
-                          className={`block px-4 py-2 text-sm font-['DM_Sans'] transition-colors ${
-                            pathname === subLink.href
-                              ? "text-[#C2693F] bg-[#EDE9E1]/55"
-                              : "text-[#6B6560] hover:text-[#1E1E1E] hover:bg-[#EDE9E1]"
-                          }`}
-                        >
-                          {subLink.name}
-                        </Link>
-                      ))}
-                    </div>
+                <Link
+                  href={getDashboardHref(user.role)}
+                  className={`relative inline-flex items-center px-1 pt-1 text-[15px] font-['DM_Sans'] font-medium transition-colors duration-200 h-20 cursor-pointer ${
+                    pathname?.startsWith("/dashboard") 
+                      ? "text-[#C2693F]" 
+                      : "text-[#6B6560] hover:text-[#1E1E1E]"
+                  }`}
+                >
+                  Dashboard
+                  {pathname?.startsWith("/dashboard") && (
+                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#C2693F]" />
                   )}
-                </div>
+                </Link>
               )}
             </div>
           </div>
@@ -183,18 +163,12 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-56 bg-[#F7F4EF] border border-[#D6CFC4] rounded-[8px] shadow-lg py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                     <div className="px-4 py-2 border-b border-[#D6CFC4] text-left">
                       <span className="block text-xs font-semibold text-[#6B6560] uppercase tracking-wider font-['DM_Mono']">
-                        {(user.role || "user")} Account
+                        {(user.role || "buyer")} Account
                       </span>
                     </div>
 
                     <Link
-                      href={
-                        user.role === "admin" 
-                          ? "/dashboard/admin" 
-                          : user.role === "artist" 
-                            ? "/dashboard/artist" 
-                            : "/dashboard/user"
-                      }
+                      href={getDashboardHref(user.role)}
                       className="block px-4 py-2 text-sm text-[#6B6560] hover:text-[#1E1E1E] hover:bg-[#EDE9E1] transition-colors font-['DM_Sans']"
                       onClick={() => setIsProfileOpen(false)}
                     >
@@ -277,7 +251,7 @@ export default function Navbar() {
                   </div>
                   <div className="ml-3">
                     <div className="text-sm font-semibold text-[#1E1E1E] font-['DM_Sans']">{user.name}</div>
-                    <div className="text-xs text-[#6B6560] font-['DM_Sans'] uppercase tracking-wider font-['DM_Mono']">{user.role || "user"}</div>
+                    <div className="text-xs text-[#6B6560] font-['DM_Sans'] uppercase tracking-wider font-['DM_Mono']">{user.role || "buyer"}</div>
                   </div>
                 </div>
                 
