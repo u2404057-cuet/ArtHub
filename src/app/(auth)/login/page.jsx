@@ -2,8 +2,13 @@
 
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import { signIn } from "@/lib/auth-client";
+import { useState } from "react";
 
 export default function Login() {
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -15,9 +20,37 @@ export default function Login() {
     }
   });
 
-  const onSubmit = (data) => {
-    console.log("Login Submit:", data);
-    alert(`Logged in successfully with ${data.email}!`);
+  const onSubmit = async (data) => {
+    setLoading(true);
+    setErrorMsg("");
+    try {
+      const { error } = await signIn.email({
+        email: data.email,
+        password: data.password,
+        callbackURL: "/"
+      });
+      
+      if (error) {
+        setErrorMsg(error.message || "Invalid email or password.");
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMsg("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signIn.social({
+        provider: "google",
+        callbackURL: "/"
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Failed to initiate Google sign-in.");
+    }
   };
 
   return (
@@ -43,6 +76,13 @@ export default function Login() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-[#EDE9E1] py-8 px-4 border border-[#D6CFC4] rounded-[8px] shadow-[0_2px_12px_rgba(30,30,30,0.07)] sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            {/* Global Error Banner */}
+            {errorMsg && (
+              <div className="p-3 bg-[#B94A3A]/10 border border-[#B94A3A]/20 text-[#B94A3A] rounded-[6px] text-xs font-['DM_Sans']">
+                {errorMsg}
+              </div>
+            )}
+
             {/* Email Address */}
             <div>
               <label 
@@ -54,6 +94,7 @@ export default function Login() {
               <input
                 id="email"
                 type="email"
+                disabled={loading}
                 {...register("email", { 
                   required: "Email is required",
                   pattern: {
@@ -61,7 +102,7 @@ export default function Login() {
                     message: "Invalid email address"
                   }
                 })}
-                className="w-full h-10 px-4 text-sm bg-[#F7F4EF] border border-[#D6CFC4] rounded-[6px] text-[#1E1E1E] placeholder:text-[#6B6560]/70 focus:outline-none focus:border-[#C2693F] transition-colors font-['DM_Sans']"
+                className="w-full h-10 px-4 text-sm bg-[#F7F4EF] border border-[#D6CFC4] rounded-[6px] text-[#1E1E1E] placeholder:text-[#6B6560]/70 focus:outline-none focus:border-[#C2693F] disabled:opacity-50 transition-colors font-['DM_Sans']"
                 placeholder="evelyn@example.com"
               />
               {errors.email && (
@@ -80,8 +121,9 @@ export default function Login() {
               <input
                 id="password"
                 type="password"
+                disabled={loading}
                 {...register("password", { required: "Password is required" })}
-                className="w-full h-10 px-4 text-sm bg-[#F7F4EF] border border-[#D6CFC4] rounded-[6px] text-[#1E1E1E] placeholder:text-[#6B6560]/70 focus:outline-none focus:border-[#C2693F] transition-colors font-['DM_Sans']"
+                className="w-full h-10 px-4 text-sm bg-[#F7F4EF] border border-[#D6CFC4] rounded-[6px] text-[#1E1E1E] placeholder:text-[#6B6560]/70 focus:outline-none focus:border-[#C2693F] disabled:opacity-50 transition-colors font-['DM_Sans']"
                 placeholder="••••••••"
               />
               {errors.password && (
@@ -93,9 +135,10 @@ export default function Login() {
             <div>
               <button
                 type="submit"
-                className="w-full h-10 px-5 inline-flex items-center justify-center bg-[#C2693F] text-[#F7F4EF] text-sm font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#A3522E] transition-colors duration-200 cursor-pointer shadow-sm"
+                disabled={loading}
+                className="w-full h-10 px-5 inline-flex items-center justify-center bg-[#C2693F] text-[#F7F4EF] text-sm font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#A3522E] disabled:opacity-50 transition-colors duration-200 cursor-pointer shadow-sm"
               >
-                Log In
+                {loading ? "Logging in..." : "Log In"}
               </button>
             </div>
           </form>
@@ -113,8 +156,9 @@ export default function Login() {
           {/* Google Sign-in Button */}
           <button
             type="button"
-            onClick={() => alert("Google login clicked")}
-            className="w-full h-10 px-5 inline-flex items-center justify-center gap-2.5 border border-[#D6CFC4] bg-transparent text-[#1E1E1E] text-sm font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#F7F4EF] transition-colors duration-200 cursor-pointer shadow-sm"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full h-10 px-5 inline-flex items-center justify-center gap-2.5 border border-[#D6CFC4] bg-transparent text-[#1E1E1E] text-sm font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#F7F4EF] disabled:opacity-50 transition-colors duration-200 cursor-pointer shadow-sm"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path

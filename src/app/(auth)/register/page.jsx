@@ -2,8 +2,13 @@
 
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+import { signUp, signIn } from "@/lib/auth-client";
+import { useState } from "react";
 
 export default function Register() {
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -17,9 +22,42 @@ export default function Register() {
     }
   });
 
-  const onSubmit = (data) => {
-    console.log("Registration Submit:", data);
-    alert(`Account created successfully for ${data.name} as an ${data.role}!`);
+  const onSubmit = async (data) => {
+    setLoading(true);
+    setErrorMsg("");
+    try {
+      const { error } = await signUp.email({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        // Custom user fields are supplied under the 'data' parameter in Better Auth
+        data: {
+          role: data.role
+        },
+        callbackURL: "/"
+      });
+      
+      if (error) {
+        setErrorMsg(error.message || "Registration failed. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMsg("An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signIn.social({
+        provider: "google",
+        callbackURL: "/"
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Failed to initiate Google sign-in.");
+    }
   };
 
   return (
@@ -45,6 +83,13 @@ export default function Register() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-[#EDE9E1] py-8 px-4 border border-[#D6CFC4] rounded-[8px] shadow-[0_2px_12px_rgba(30,30,30,0.07)] sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            {/* Global Error Banner */}
+            {errorMsg && (
+              <div className="p-3 bg-[#B94A3A]/10 border border-[#B94A3A]/20 text-[#B94A3A] rounded-[6px] text-xs font-['DM_Sans']">
+                {errorMsg}
+              </div>
+            )}
+
             {/* Full Name */}
             <div>
               <label 
@@ -56,8 +101,9 @@ export default function Register() {
               <input
                 id="name"
                 type="text"
+                disabled={loading}
                 {...register("name", { required: "Name is required" })}
-                className="w-full h-10 px-4 text-sm bg-[#F7F4EF] border border-[#D6CFC4] rounded-[6px] text-[#1E1E1E] placeholder:text-[#6B6560]/70 focus:outline-none focus:border-[#C2693F] transition-colors font-['DM_Sans']"
+                className="w-full h-10 px-4 text-sm bg-[#F7F4EF] border border-[#D6CFC4] rounded-[6px] text-[#1E1E1E] placeholder:text-[#6B6560]/70 focus:outline-none focus:border-[#C2693F] disabled:opacity-50 transition-colors font-['DM_Sans']"
                 placeholder="Evelyn Reed"
               />
               {errors.name && (
@@ -76,6 +122,7 @@ export default function Register() {
               <input
                 id="email"
                 type="email"
+                disabled={loading}
                 {...register("email", { 
                   required: "Email is required",
                   pattern: {
@@ -83,7 +130,7 @@ export default function Register() {
                     message: "Invalid email address"
                   }
                 })}
-                className="w-full h-10 px-4 text-sm bg-[#F7F4EF] border border-[#D6CFC4] rounded-[6px] text-[#1E1E1E] placeholder:text-[#6B6560]/70 focus:outline-none focus:border-[#C2693F] transition-colors font-['DM_Sans']"
+                className="w-full h-10 px-4 text-sm bg-[#F7F4EF] border border-[#D6CFC4] rounded-[6px] text-[#1E1E1E] placeholder:text-[#6B6560]/70 focus:outline-none focus:border-[#C2693F] disabled:opacity-50 transition-colors font-['DM_Sans']"
                 placeholder="evelyn@example.com"
               />
               {errors.email && (
@@ -102,6 +149,7 @@ export default function Register() {
               <input
                 id="password"
                 type="password"
+                disabled={loading}
                 {...register("password", { 
                   required: "Password is required",
                   minLength: {
@@ -109,7 +157,7 @@ export default function Register() {
                     message: "Password must be at least 6 characters"
                   }
                 })}
-                className="w-full h-10 px-4 text-sm bg-[#F7F4EF] border border-[#D6CFC4] rounded-[6px] text-[#1E1E1E] placeholder:text-[#6B6560]/70 focus:outline-none focus:border-[#C2693F] transition-colors font-['DM_Sans']"
+                className="w-full h-10 px-4 text-sm bg-[#F7F4EF] border border-[#D6CFC4] rounded-[6px] text-[#1E1E1E] placeholder:text-[#6B6560]/70 focus:outline-none focus:border-[#C2693F] disabled:opacity-50 transition-colors font-['DM_Sans']"
                 placeholder="••••••••"
               />
               {errors.password && (
@@ -127,8 +175,9 @@ export default function Register() {
                   <input
                     type="radio"
                     value="buyer"
+                    disabled={loading}
                     {...register("role")}
-                    className="h-4 w-4 text-[#C2693F] border-[#D6CFC4] focus:ring-[#C2693F]"
+                    className="h-4 w-4 text-[#C2693F] border-[#D6CFC4] focus:ring-[#C2693F] disabled:opacity-50"
                   />
                   <span className="ml-2 text-sm text-[#1E1E1E] font-['DM_Sans']">Buyer</span>
                 </label>
@@ -136,8 +185,9 @@ export default function Register() {
                   <input
                     type="radio"
                     value="artist"
+                    disabled={loading}
                     {...register("role")}
-                    className="h-4 w-4 text-[#C2693F] border-[#D6CFC4] focus:ring-[#C2693F]"
+                    className="h-4 w-4 text-[#C2693F] border-[#D6CFC4] focus:ring-[#C2693F] disabled:opacity-50"
                   />
                   <span className="ml-2 text-sm text-[#1E1E1E] font-['DM_Sans']">Artist</span>
                 </label>
@@ -148,9 +198,10 @@ export default function Register() {
             <div>
               <button
                 type="submit"
-                className="w-full h-10 px-5 inline-flex items-center justify-center bg-[#C2693F] text-[#F7F4EF] text-sm font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#A3522E] transition-colors duration-200 cursor-pointer shadow-sm"
+                disabled={loading}
+                className="w-full h-10 px-5 inline-flex items-center justify-center bg-[#C2693F] text-[#F7F4EF] text-sm font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#A3522E] disabled:opacity-50 transition-colors duration-200 cursor-pointer shadow-sm"
               >
-                Create Account
+                {loading ? "Creating Account..." : "Create Account"}
               </button>
             </div>
           </form>
@@ -168,8 +219,9 @@ export default function Register() {
           {/* Google Sign-up Button */}
           <button
             type="button"
-            onClick={() => alert("Google sign-up clicked")}
-            className="w-full h-10 px-5 inline-flex items-center justify-center gap-2.5 border border-[#D6CFC4] bg-transparent text-[#1E1E1E] text-sm font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#F7F4EF] transition-colors duration-200 cursor-pointer shadow-sm"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full h-10 px-5 inline-flex items-center justify-center gap-2.5 border border-[#D6CFC4] bg-transparent text-[#1E1E1E] text-sm font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#F7F4EF] disabled:opacity-50 transition-colors duration-200 cursor-pointer shadow-sm"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path

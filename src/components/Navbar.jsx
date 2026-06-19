@@ -10,6 +10,8 @@ import {
   ArrowRightFromSquare,
   ArrowChevronDown
 } from "@gravity-ui/icons";
+import { useSession, signOut } from "@/lib/auth-client";
+import Image from "next/image";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,21 +19,19 @@ export default function Navbar() {
   const [isDashboardDropdownOpen, setIsDashboardDropdownOpen] = useState(false);
   const pathname = usePathname();
 
-  // Mock authentication status (can be wired to Better Auth later)
-  const [user, setUser] = useState({
-    name: "Evelyn Reed",
-    email: "evelyn@arthub.com",
-    role: "artist" // 'user' (buyer), 'artist', 'admin'
-  });
+  // Better Auth Session Hook
+  const { data: session, isPending } = useSession();
+  const user = session?.user; // Better Auth user object (name, email, image, role etc.)
 
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "Browse Artworks", href: "/artworks" },
   ];
 
-  // Dynamic Dashboard links based on role
+  // Dynamic Dashboard links based on role (defaults to buyer/user role if not set)
   const getDashboardLinks = (role) => {
-    switch (role) {
+    const userRole = role || "user";
+    switch (userRole) {
       case "admin":
         return [
           { name: "Overview", href: "/dashboard/admin" },
@@ -54,22 +54,19 @@ export default function Navbar() {
     }
   };
 
-  const handleLogout = () => {
-    setUser(null);
-    setIsProfileOpen(false);
-    setIsDashboardDropdownOpen(false);
-  };
-
-  const cycleRole = () => {
-    if (!user) {
-      setUser({ name: "Evelyn Reed", email: "evelyn@arthub.com", role: "user" });
-    } else if (user.role === "user") {
-      setUser({ ...user, role: "artist" });
-    } else if (user.role === "artist") {
-      setUser({ ...user, role: "admin" });
-    } else {
-      setUser(null);
+  const handleLogout = async () => {
+    try {
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            window.location.href = "/";
+          }
+        }
+      });
+    } catch (err) {
+      console.error("Logout failed:", err);
     }
+    setIsProfileOpen(false);
     setIsDashboardDropdownOpen(false);
   };
 
@@ -82,17 +79,6 @@ export default function Navbar() {
 
   return (
     <nav className="w-full bg-[#F7F4EF] border-b border-[#D6CFC4] sticky top-0 z-50 transition-colors duration-200">
-      {/* Dev Role Switcher Badge */}
-      <div className="bg-[#EDE9E1]/50 border-b border-[#D6CFC4] px-4 py-1 text-center text-xs text-[#6B6560] flex justify-between items-center sm:px-6 lg:px-8">
-        <span className="font-['DM_Mono'] text-[11px]">ArtHub Dev Preview</span>
-        <button 
-          onClick={cycleRole} 
-          className="text-[#C2693F] hover:text-[#A3522E] font-medium underline transition-colors cursor-pointer"
-        >
-          {user ? `Role: ${user.role} (Click to switch)` : "Status: Logged Out (Click to log in)"}
-        </button>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20">
           {/* Logo & Links */}
@@ -174,14 +160,18 @@ export default function Navbar() {
 
           {/* Tools / Actions */}
           <div className="hidden md:flex items-center space-x-6">
-            {user ? (
+            {!isPending && user ? (
               <div className="relative">
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-[#EDE9E1] border border-transparent hover:border-[#D6CFC4] transition-all duration-200"
                 >
-                  <div className="w-8 h-8 rounded-full bg-[#EDE9E1] border border-[#D6CFC4] flex items-center justify-center text-[#6B6560]">
-                    <Person className="w-4 h-4" />
+                  <div className="w-8 h-8 rounded-full bg-[#EDE9E1] border border-[#D6CFC4] flex items-center justify-center text-[#6B6560] overflow-hidden relative">
+                    {user.image ? (
+                      <Image src={user.image} alt={user.name} fill className="object-cover" />
+                    ) : (
+                      <Person className="w-4 h-4" />
+                    )}
                   </div>
                   <span className="text-sm font-medium text-[#1E1E1E] font-['DM_Sans']">
                     {user.name}
@@ -193,7 +183,7 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-56 bg-[#F7F4EF] border border-[#D6CFC4] rounded-[8px] shadow-lg py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                     <div className="px-4 py-2 border-b border-[#D6CFC4] text-left">
                       <span className="block text-xs font-semibold text-[#6B6560] uppercase tracking-wider font-['DM_Mono']">
-                        {user.role} Account
+                        {(user.role || "user")} Account
                       </span>
                     </div>
 
@@ -221,7 +211,7 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
-            ) : (
+            ) : !isPending ? (
               <div className="flex items-center space-x-4">
                 <Link
                   href="/login"
@@ -236,6 +226,8 @@ export default function Navbar() {
                   Join ArtHub
                 </Link>
               </div>
+            ) : (
+              <div className="w-8 h-8 rounded-full border-2 border-t-transparent border-[#C2693F] animate-spin"></div>
             )}
           </div>
 
@@ -276,12 +268,16 @@ export default function Navbar() {
             {user ? (
               <div className="pt-4 border-t border-[#D6CFC4] mt-4">
                 <div className="flex items-center px-3 mb-3">
-                  <div className="w-9 h-9 rounded-full bg-[#EDE9E1] border border-[#D6CFC4] flex items-center justify-center text-[#6B6560]">
-                    <Person className="w-5 h-5" />
+                  <div className="w-9 h-9 rounded-full bg-[#EDE9E1] border border-[#D6CFC4] flex items-center justify-center text-[#6B6560] overflow-hidden relative">
+                    {user.image ? (
+                      <Image src={user.image} alt={user.name} fill className="object-cover" />
+                    ) : (
+                      <Person className="w-5 h-5" />
+                    )}
                   </div>
                   <div className="ml-3">
                     <div className="text-sm font-semibold text-[#1E1E1E] font-['DM_Sans']">{user.name}</div>
-                    <div className="text-xs text-[#6B6560] font-['DM_Sans'] uppercase tracking-wider font-['DM_Mono']">{user.role}</div>
+                    <div className="text-xs text-[#6B6560] font-['DM_Sans'] uppercase tracking-wider font-['DM_Mono']">{user.role || "user"}</div>
                   </div>
                 </div>
                 
