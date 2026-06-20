@@ -158,22 +158,20 @@ export default function Subscription() {
                   <div className="w-full h-11 inline-flex items-center justify-center bg-[#D6CFC4] text-[#6B6560] text-sm font-semibold rounded-[6px] cursor-default">
                     Current Plan
                   </div>
-                </>) : (
-                    <>
-                    <form action="/api/checkout_sessions" method="POST">
-      <section>
-        <button type="submit" role="link" className="w-full h-11 inline-flex items-center justify-center bg-[#D6CFC4] text-[#6B6560] text-sm font-semibold rounded-[6px] cursor-default">
-          Checkout
-        </button>
-      </section>
-    </form>
-                  <button
-                    onClick={() => handleUpgrade(plan.name)}
-                    disabled={loadingPlan !== null}
-                    className={`w-full h-11 inline-flex items-center justify-center text-sm font-semibold rounded-[6px] transition-colors duration-200 cursor-pointer disabled:opacity-50 ${plan.buttonColor}`}
-                  >
-                    {loadingPlan === plan.name ? "Processing..." : `Choose ${plan.name}`}
-                  </button></>
+                    <form action="/api/checkout_sessions" method="POST" className="w-full">
+                      <input 
+                        type="hidden" 
+                        name="priceId" 
+                        value={plan.name === "Pro" ? "price_1TkLaS3r2bTEFkmmoN8FZVnl" : "price_1TkM043r2bTEFkmmtLTzhJ0X"} 
+                      />
+                      <button 
+                        type="submit" 
+                        role="link" 
+                        className={`w-full h-11 inline-flex items-center justify-center text-sm font-semibold rounded-[6px] transition-colors duration-200 cursor-pointer ${plan.buttonColor}`}
+                      >
+                        Upgrade to {plan.name}
+                      </button>
+                    </form>
                 )}
               </div>
             </div>

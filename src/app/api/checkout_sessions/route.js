@@ -3,8 +3,10 @@ import { headers } from 'next/headers'
 
 import { stripe } from '../../../lib/stripe'
 
-export async function POST() {
+export async function POST(req) {
   try {
+    const formData = await req.formData()
+    const priceId = formData.get('priceId') || 'price_1TkLaS3r2bTEFkmmoN8FZVnl'
     const headersList = await headers()
     const origin = headersList.get('origin')
 
@@ -12,13 +14,13 @@ export async function POST() {
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
-          // Provide the exact Price ID (for example, price_1234) of the product you want to sell
-          price: 'price_1TkLaS3r2bTEFkmmoN8FZVnl',
+          price: priceId,
           quantity: 1,
         },
       ],
       mode: 'subscription',
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/dashboard/user`,
     });
     return NextResponse.redirect(session.url, 303)
   } catch (err) {
