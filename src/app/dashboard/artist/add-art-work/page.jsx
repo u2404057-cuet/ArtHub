@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Check } from "@gravity-ui/icons";
 import Link from "next/link";
+import { postData } from "@/lib/action/postData";
 
 function AddArtworkForm() {
   const { data: session, isPending } = useSession();
@@ -101,30 +102,42 @@ function AddArtworkForm() {
         imageUrl: finalImageUrl,
       };
 
-      let res;
       if (isEditing) {
-        res = await fetch("/api/artworks", {
+        const res = await fetch("/api/artworks", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: editId, ...payload }),
         });
+        const data = await res.json();
+        
+        if (res.ok) {
+          setFormSuccess(data.message || "Artwork saved successfully!");
+          setTimeout(() => {
+            router.push("/dashboard/artist");
+          }, 1500);
+        } else {
+          setFormError(data.error || "Failed to save artwork.");
+        }
       } else {
-        res = await fetch("/api/artworks", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-      }
+        const addPayload = {
+          ...payload,
+          artistId: user?.id || user?._id || "user_artist_001",
+          artistName: user?.name || "Anonymous Artist",
+          soldCount: 0,
+          available: true,
+          createdAt: new Date().toISOString()
+        };
 
-      const data = await res.json();
+        const data = await postData("/arts", addPayload);
 
-      if (res.ok) {
-        setFormSuccess(data.message || "Artwork saved successfully!");
-        setTimeout(() => {
-          router.push("/dashboard/artist");
-        }, 1500);
-      } else {
-        setFormError(data.error || "Failed to save artwork.");
+        if (data.error) {
+          setFormError(data.error || "Failed to save artwork.");
+        } else {
+          setFormSuccess("Artwork saved successfully!");
+          setTimeout(() => {
+            router.push("/dashboard/artist");
+          }, 1500);
+        }
       }
     } catch (err) {
       console.error(err);

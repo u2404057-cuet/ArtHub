@@ -18,10 +18,8 @@ export default async function ArtistDashboardLayout({ children }) {
   }
 
   const role = session.user.role || "buyer";
-  if (role === "buyer" || role === "user") {
-    redirect("/dashboard/user");
-  } else if (role === "admin") {
-    redirect("/dashboard/admin");
+  if (role !== "artist") {
+    redirect("/unauthorize");
   }
 
   return (
