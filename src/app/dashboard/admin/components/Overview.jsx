@@ -122,7 +122,7 @@ export default function Overview() {
                 {salesData.map((d, index) => {
                   const percentageHeight = Math.max(10, Math.min(100, (d.revenue / maxRevenue) * 100));
                   return (
-                    <div key={index} className="flex-1 flex flex-col items-center group px-1">
+                    <div key={index} className="flex-1 h-full flex flex-col justify-end items-center group px-1 relative">
                       {/* Tooltip */}
                       <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 bottom-full mb-1 bg-[#1E1E1E] text-[#F7F4EF] text-[10px] px-2 py-1 rounded shadow-md pointer-events-none whitespace-nowrap font-mono z-10">
                         ${d.revenue} ({d.date})
