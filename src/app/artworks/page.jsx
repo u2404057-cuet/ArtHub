@@ -64,13 +64,13 @@ export default async function ArtworksPage({ searchParams }) {
     : allArtworks;
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F7F4EF]">
+    <div className="flex flex-col min-h-screen bg-[#F7F4EF] animate-fade-in">
       {/* Navigation Header */}
       <Navbar />
 
       {/* Main Browse Gallery Content */}
       <main className="flex-grow max-w-7xl w-full mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div className="border-b border-[#D6CFC4] pb-6 mb-12 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+        <div className="border-b border-[#D6CFC4] pb-6 mb-12 flex flex-col md:flex-row md:justify-between md:items-end gap-4 animate-slide-up">
           <div>
             <h1 className="font-['Cormorant_Garamond'] text-4xl md:text-5xl font-bold text-[#1E1E1E]">
               {category ? `${category} Gallery` : "Browse Artworks"}
@@ -91,7 +91,7 @@ export default async function ArtworksPage({ searchParams }) {
 
         {/* Gallery Grid */}
         {artworks.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-slide-up delay-100">
             {artworks.map((artwork) => (
               <ArtCard key={artwork._id} artwork={artwork} />
             ))}

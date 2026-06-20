@@ -90,13 +90,13 @@ export default async function Home() {
   ];
 
   return (
-    <div className="w-full bg-[#F7F4EF] min-h-screen">
+    <div className="w-full bg-[#F7F4EF] min-h-screen animate-fade-in">
       {/* Hero Section */}
       <section className="relative overflow-hidden py-16 md:py-24 border-b border-[#D6CFC4] bg-gradient-to-b from-[#EDE9E1]/30 to-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Side: Tagline & CTA */}
-            <div className="space-y-6 text-left">
+            <div className="space-y-6 text-left animate-slide-up">
               <h1 className="font-['Cormorant_Garamond'] text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-[#1E1E1E] leading-[1.1]">
                 Discover & Buy Original Art
               </h1>
@@ -106,7 +106,7 @@ export default async function Home() {
               <div className="pt-2">
                 <Link
                   href="/artworks"
-                  className="h-12 px-8 inline-flex items-center justify-center bg-[#C2693F] text-[#F7F4EF] text-[15px] font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#A3522E] transition-colors duration-200 cursor-pointer"
+                  className="h-12 px-8 inline-flex items-center justify-center bg-[#C2693F] text-[#F7F4EF] text-[15px] font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#A3522E] transition-colors duration-200 cursor-pointer shadow-sm hover:shadow"
                 >
                   Browse Artworks
                 </Link>
@@ -114,8 +114,8 @@ export default async function Home() {
             </div>
 
             {/* Right Side: Composition Image (Optimized via Next Image) */}
-            <div className="flex justify-center lg:justify-end">
-              <div className="relative max-w-md md:max-w-lg lg:max-w-full rounded-[8px] overflow-hidden shadow-[0_2px_16px_rgba(30,30,30,0.1)] border border-[#D6CFC4] bg-[#EDE9E1] p-2">
+            <div className="flex justify-center lg:justify-end animate-slide-up delay-200">
+              <div className="relative max-w-md md:max-w-lg lg:max-w-full rounded-[8px] overflow-hidden shadow-[0_2px_16px_rgba(30,30,30,0.1)] border border-[#D6CFC4] bg-[#EDE9E1] p-2 hover-lift">
                 <Image
                   src="/art_tools_composition.png"
                   alt="Artist tools composition including paintbrushes, canvas, camera, and paints"
@@ -132,7 +132,7 @@ export default async function Home() {
 
       {/* Extra Section 2: Art Categories Grid */}
       <section className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 border-b border-[#D6CFC4]">
-        <div className="text-center max-w-xl mx-auto mb-12">
+        <div className="text-center max-w-xl mx-auto mb-12 animate-slide-up">
           <h2 className="font-['Cormorant_Garamond'] text-3xl md:text-4xl font-semibold text-[#1E1E1E]">
             Art Categories
           </h2>
@@ -146,7 +146,7 @@ export default async function Home() {
             <Link 
               key={category.slug}
               href={`/artworks?category=${category.slug}`}
-              className="group relative h-48 rounded-[8px] overflow-hidden shadow-[0_2px_12px_rgba(30,30,30,0.07)] border border-[#D6CFC4]/50 flex items-end p-6 bg-[#EDE9E1]"
+              className="group relative h-48 rounded-[8px] overflow-hidden shadow-[0_2px_12px_rgba(30,30,30,0.07)] border border-[#D6CFC4]/50 flex items-end p-6 bg-[#EDE9E1] hover-lift animate-slide-up delay-100"
             >
               {/* background image crop */}
               <div className="absolute inset-0 z-0">
@@ -175,7 +175,7 @@ export default async function Home() {
 
       {/* Main Gallery Showcase */}
       <section className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 border-b border-[#D6CFC4]">
-        <div className="flex flex-col sm:flex-row justify-between items-baseline mb-12 border-b border-[#D6CFC4] pb-5">
+        <div className="flex flex-col sm:flex-row justify-between items-baseline mb-12 border-b border-[#D6CFC4] pb-5 animate-slide-up">
           <h2 className="font-['Cormorant_Garamond'] text-3xl md:text-4xl font-semibold text-[#1E1E1E]">
             Featured Collection
           </h2>
@@ -188,7 +188,7 @@ export default async function Home() {
         </div>
 
         {/* Artwork Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-slide-up delay-100">
           {featuredArtworks.map((artwork) => (
             <ArtCard key={artwork._id} artwork={artwork} />
           ))}
@@ -197,7 +197,7 @@ export default async function Home() {
 
       {/* Extra Section 1: Top Artists */}
       <section className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8">
-        <div className="text-center max-w-xl mx-auto mb-12">
+        <div className="text-center max-w-xl mx-auto mb-12 animate-slide-up">
           <h2 className="font-['Cormorant_Garamond'] text-3xl md:text-4xl font-semibold text-[#1E1E1E]">
             Top Artists
           </h2>
@@ -206,11 +206,11 @@ export default async function Home() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 animate-slide-up delay-100">
           {topArtists.map((artist, idx) => (
             <div 
               key={artist.name}
-              className="flex flex-col items-center text-center p-6 bg-[#EDE9E1] rounded-[8px] shadow-[0_2px_12px_rgba(30,30,30,0.07)] border border-[#D6CFC4]/50 relative"
+              className="flex flex-col items-center text-center p-6 bg-[#EDE9E1] rounded-[8px] shadow-[0_2px_12px_rgba(30,30,30,0.07)] border border-[#D6CFC4]/50 relative hover-lift"
             >
               {/* Sales Rank Badge */}
               <span className="absolute top-4 right-4 font-['DM_Mono'] text-xs font-semibold text-[#C2693F] uppercase tracking-wider">
