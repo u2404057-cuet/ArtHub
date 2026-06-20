@@ -8,6 +8,8 @@ import { useState } from "react";
 export default function Register() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [toastConfig, setToastConfig] = useState({ type: "success", message: "" });
 
   const {
     register,
@@ -26,19 +28,34 @@ export default function Register() {
     setLoading(true);
     setErrorMsg("");
     try {
-      const { error } = await signUp.email({
+      const res = await signUp.email({
         email: data.email,
         password: data.password,
         name: data.name,
-        // Custom user fields are supplied under the 'data' parameter in Better Auth
         data: {
-          role: data.role
+          role: data.role,
         },
-        callbackURL: "/"
+        dontRedirect: true,
       });
       
-      if (error) {
-        setErrorMsg(error.message || "Registration failed. Please try again.");
+      if (res.error) {
+        setErrorMsg(res.error.message || "Registration failed. Please try again.");
+      } else {
+        const userRole = res.data?.user?.role || data.role || "buyer";
+        setToastConfig({
+          type: "success",
+          message: "Registration successful! Redirecting to your dashboard...",
+        });
+        setShowToast(true);
+        setTimeout(() => {
+          if (userRole === "artist") {
+            window.location.href = "/dashboard/artist";
+          } else if (userRole === "admin") {
+            window.location.href = "/dashboard/admin";
+          } else {
+            window.location.href = "/dashboard/user";
+          }
+        }, 1500);
       }
     } catch (err) {
       console.error(err);
@@ -245,6 +262,19 @@ export default function Register() {
           </button>
         </div>
       </div>
+      {showToast && (
+        <div className="fixed bottom-6 right-6 z-[110] max-w-xs w-full bg-[#EDE9E1] border-l-4 rounded-[6px] p-4 shadow-[0_4px_20px_rgba(30,30,30,0.15)] flex items-start justify-between gap-3 border-[#C2693F]">
+          <div className="flex gap-2">
+            <svg className="w-4 h-4 text-[#C2693F] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+            <div>
+              <p className="font-semibold text-xs text-[#1E1E1E]">Success</p>
+              <p className="text-[11px] text-[#6B6560] mt-1">{toastConfig.message}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
