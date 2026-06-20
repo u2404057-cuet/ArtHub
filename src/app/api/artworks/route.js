@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
-import { MongoClient, ObjectId } from "mongodb";
 import { auth } from "@/lib/auth";
+
+const serverURL = process.env.SERVER_URL || "http://localhost:8000";
 
 // Fetch artworks of the logged-in artist
 export async function GET(req) {
@@ -14,19 +15,25 @@ export async function GET(req) {
       return NextResponse.json({ error: "Unauthorized. Artist role required." }, { status: 401 });
     }
 
-    const client = new MongoClient(process.env.MONGO_URI);
-    await client.connect();
-    const db = client.db("ArtHub");
+    // Call the backend server "/arts" API route to get all artworks
+    const artsRes = await fetch(`${serverURL}/arts`, { cache: "no-store" });
+    if (!artsRes.ok) {
+      throw new Error("Failed to fetch artworks from the backend server.");
+    }
+    const allArts = await artsRes.json();
 
-    const artworks = await db.collection("arts")
-      .find({ artistEmail: session.user.email })
-      .sort({ createdAt: -1 })
-      .toArray();
+    const artistId = session.user.id || session.user._id || "";
 
-    await client.close();
+    // Filter artworks belonging to this artist, or return all if the user is an admin
+    const artworks = session.user.role === "admin"
+      ? allArts
+      : allArts.filter(art => 
+          art.artistId === artistId || art.artistEmail === session.user.email
+        );
+
     return NextResponse.json({ artworks });
   } catch (err) {
-    console.error("Error fetching artist artworks:", err);
+    console.error("Error fetching artist artworks via backend route:", err);
     return NextResponse.json({ error: err.message || "Failed to fetch artworks." }, { status: 500 });
   }
 }
@@ -42,33 +49,42 @@ export async function POST(req) {
       return NextResponse.json({ error: "Unauthorized. Artist role required." }, { status: 401 });
     }
 
-    const { title, description, price, category, imageUrl } = await req.json();
+    const body = await req.json();
+    const { title, description, price, category, imageUrl } = body;
 
     if (!title || !price || !category || !imageUrl) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
     }
 
-    const client = new MongoClient(process.env.MONGO_URI);
-    await client.connect();
-    const db = client.db("ArtHub");
-
-    const newArtwork = {
+    const payload = {
       title,
       description: description || "",
       price: Number(price),
       category,
       imageUrl,
+      artistId: session.user.id || session.user._id || "",
       artistName: session.user.name,
       artistEmail: session.user.email,
-      createdAt: new Date(),
+      soldCount: 0,
+      available: true,
+      createdAt: new Date().toISOString(),
     };
 
-    const result = await db.collection("arts").insertOne(newArtwork);
-    await client.close();
+    // Call the backend server "/arts" POST API route to create the artwork
+    const artsRes = await fetch(`${serverURL}/arts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-    return NextResponse.json({ success: true, artworkId: result.insertedId, message: "Artwork added successfully!" });
+    if (!artsRes.ok) {
+      throw new Error("Failed to save artwork to the backend server.");
+    }
+
+    const data = await artsRes.json();
+    return NextResponse.json({ success: true, artworkId: data._id || data.insertedId || "", message: "Artwork added successfully!" });
   } catch (err) {
-    console.error("Error creating artwork:", err);
+    console.error("Error creating artwork via backend route:", err);
     return NextResponse.json({ error: err.message || "Failed to create artwork." }, { status: 500 });
   }
 }
@@ -84,15 +100,12 @@ export async function PUT(req) {
       return NextResponse.json({ error: "Unauthorized. Artist role required." }, { status: 401 });
     }
 
-    const { id, title, description, price, category, imageUrl } = await req.json();
+    const body = await req.json();
+    const { id, title, description, price, category, imageUrl } = body;
 
     if (!id || !title || !price || !category || !imageUrl) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
     }
-
-    const client = new MongoClient(process.env.MONGO_URI);
-    await client.connect();
-    const db = client.db("ArtHub");
 
     const updateFields = {
       title,
@@ -102,22 +115,15 @@ export async function PUT(req) {
       imageUrl,
     };
 
-    let artworkObjectId;
-    try {
-      artworkObjectId = new ObjectId(id);
-    } catch (e) {
-      artworkObjectId = id;
-    }
+    // Update via backend PUT route `/arts/:id`
+    const artsRes = await fetch(`${serverURL}/arts/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updateFields),
+    });
 
-    const result = await db.collection("arts").updateOne(
-      { _id: artworkObjectId, artistEmail: session.user.email },
-      { $set: updateFields }
-    );
-
-    await client.close();
-
-    if (result.matchedCount === 0) {
-      return NextResponse.json({ error: "Artwork not found or unauthorized to edit." }, { status: 404 });
+    if (!artsRes.ok) {
+      throw new Error("Failed to update artwork on the backend server.");
     }
 
     return NextResponse.json({ success: true, message: "Artwork updated successfully!" });
@@ -134,36 +140,22 @@ export async function DELETE(req) {
       headers: await headers(),
     });
 
-    if (!session || !session.user || session.user.role !== "artist") {
-      return NextResponse.json({ error: "Unauthorized. Artist role required." }, { status: 401 });
+    if (!session || !session.user || (session.user.role !== "artist" && session.user.role !== "admin")) {
+      return NextResponse.json({ error: "Unauthorized. Artist or Admin role required." }, { status: 401 });
     }
 
     const { id } = await req.json();
-
     if (!id) {
       return NextResponse.json({ error: "Artwork ID is required." }, { status: 400 });
     }
 
-    const client = new MongoClient(process.env.MONGO_URI);
-    await client.connect();
-    const db = client.db("ArtHub");
-
-    let artworkObjectId;
-    try {
-      artworkObjectId = new ObjectId(id);
-    } catch (e) {
-      artworkObjectId = id;
-    }
-
-    const result = await db.collection("arts").deleteOne({
-      _id: artworkObjectId,
-      artistEmail: session.user.email,
+    // Delete via backend DELETE route `/arts/:id`
+    const artsRes = await fetch(`${serverURL}/arts/${id}`, {
+      method: "DELETE",
     });
 
-    await client.close();
-
-    if (result.deletedCount === 0) {
-      return NextResponse.json({ error: "Artwork not found or unauthorized to delete." }, { status: 404 });
+    if (!artsRes.ok) {
+      throw new Error("Failed to delete artwork from the backend server.");
     }
 
     return NextResponse.json({ success: true, message: "Artwork deleted successfully!" });
