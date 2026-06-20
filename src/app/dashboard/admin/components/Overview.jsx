@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 export default function Overview() {
   const [data, setData] = useState(null);
@@ -51,57 +52,101 @@ export default function Overview() {
     "#B15C5C", // Dusty Rose
   ];
 
+  // Motion variants for container and items
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 15 } }
+  };
+
   return (
-    <div className="space-y-8">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-8"
+    >
       {/* Title */}
-      <div>
+      <motion.div variants={itemVariants}>
         <h2 className="font-['Cormorant_Garamond'] text-3xl font-semibold text-[#1E1E1E]">Analytics Overview</h2>
         <p className="font-['DM_Sans'] text-sm text-[#6B6560] mt-1">Global platform metrics, revenue tracking, and artwork inventory performance.</p>
-      </div>
+      </motion.div>
 
       {/* Analytics Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div variants={containerVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Card 1 */}
-        <div className="bg-[#EDE9E1] border border-[#D6CFC4] rounded-[10px] p-6 shadow-[0_2px_12px_rgba(30,30,30,0.04)] hover:shadow-[0_4px_20px_rgba(194,105,63,0.12)] transition-all duration-300">
+        <motion.div 
+          variants={itemVariants} 
+          whileHover={{ y: -4, scale: 1.01 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          className="bg-[#EDE9E1] border border-[#D6CFC4] rounded-[10px] p-6 shadow-[0_2px_12px_rgba(30,30,30,0.04)] hover:shadow-[0_6px_24px_rgba(194,105,63,0.12)] transition-shadow duration-300"
+        >
           <p className="font-['DM_Sans'] text-[11px] font-semibold text-[#6B6560] uppercase tracking-wider">Total Registered Users</p>
           <p className="font-['DM_Mono'] text-3xl font-bold text-[#1E1E1E] mt-2">{analytics.totalUsers || 0}</p>
           <div className="mt-2.5 flex items-center gap-1.5 text-xs text-[#4A6B5D]">
             <span className="font-medium">Active Collectors</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Card 2 */}
-        <div className="bg-[#EDE9E1] border border-[#D6CFC4] rounded-[10px] p-6 shadow-[0_2px_12px_rgba(30,30,30,0.04)] hover:shadow-[0_4px_20px_rgba(194,105,63,0.12)] transition-all duration-300">
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ y: -4, scale: 1.01 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          className="bg-[#EDE9E1] border border-[#D6CFC4] rounded-[10px] p-6 shadow-[0_2px_12px_rgba(30,30,30,0.04)] hover:shadow-[0_6px_24px_rgba(194,105,63,0.12)] transition-shadow duration-300"
+        >
           <p className="font-['DM_Sans'] text-[11px] font-semibold text-[#6B6560] uppercase tracking-wider">Total Verified Artists</p>
           <p className="font-['DM_Mono'] text-3xl font-bold text-[#C2693F] mt-2">{analytics.totalArtists || 0}</p>
           <div className="mt-2.5 flex items-center gap-1.5 text-xs text-[#C2693F]">
             <span className="font-medium">Creators Onboard</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Card 3 */}
-        <div className="bg-[#EDE9E1] border border-[#D6CFC4] rounded-[10px] p-6 shadow-[0_2px_12px_rgba(30,30,30,0.04)] hover:shadow-[0_4px_20px_rgba(194,105,63,0.12)] transition-all duration-300">
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ y: -4, scale: 1.01 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          className="bg-[#EDE9E1] border border-[#D6CFC4] rounded-[10px] p-6 shadow-[0_2px_12px_rgba(30,30,30,0.04)] hover:shadow-[0_6px_24px_rgba(194,105,63,0.12)] transition-shadow duration-300"
+        >
           <p className="font-['DM_Sans'] text-[11px] font-semibold text-[#6B6560] uppercase tracking-wider">Artworks Sold</p>
           <p className="font-['DM_Mono'] text-3xl font-bold text-[#1E1E1E] mt-2">{analytics.totalArtworksSold || 0}</p>
           <div className="mt-2.5 flex items-center gap-1.5 text-xs text-[#3E5C76]">
             <span className="font-medium">Completed Transactions</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Card 4 */}
-        <div className="bg-[#EDE9E1] border border-[#D6CFC4] rounded-[10px] p-6 shadow-[0_2px_12px_rgba(30,30,30,0.04)] hover:shadow-[0_4px_20px_rgba(194,105,63,0.12)] transition-all duration-300">
+        <motion.div 
+          variants={itemVariants}
+          whileHover={{ y: -4, scale: 1.01 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          className="bg-[#EDE9E1] border border-[#D6CFC4] rounded-[10px] p-6 shadow-[0_2px_12px_rgba(30,30,30,0.04)] hover:shadow-[0_6px_24px_rgba(194,105,63,0.12)] transition-shadow duration-300"
+        >
           <p className="font-['DM_Sans'] text-[11px] font-semibold text-[#6B6560] uppercase tracking-wider">Total Gross Revenue</p>
           <p className="font-['DM_Mono'] text-3xl font-bold text-[#4A6B5D] mt-2">${(analytics.totalRevenue || 0).toLocaleString()}</p>
           <div className="mt-2.5 flex items-center gap-1.5 text-xs text-[#4A6B5D]">
             <span className="font-medium">Platform Income (Subs & Arts)</span>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Charts Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Sales Chart (2/3 width) */}
-        <div className="lg:col-span-2 bg-[#EDE9E1] border border-[#D6CFC4] rounded-[10px] p-6 shadow-[0_2px_12px_rgba(30,30,30,0.04)] font-['DM_Sans']">
+        <motion.div 
+          variants={itemVariants}
+          className="lg:col-span-2 bg-[#EDE9E1] border border-[#D6CFC4] rounded-[10px] p-6 shadow-[0_2px_12px_rgba(30,30,30,0.04)] font-['DM_Sans']"
+        >
           <div className="mb-6 flex justify-between items-center">
             <div>
               <h3 className="font-['Cormorant_Garamond'] text-xl font-bold text-[#1E1E1E]">Sales Performance</h3>
@@ -128,8 +173,10 @@ export default function Overview() {
                         ${d.revenue} ({d.date})
                       </div>
                       {/* Bar Fill */}
-                      <div 
-                        style={{ height: `${percentageHeight}%` }} 
+                      <motion.div 
+                        initial={{ height: 0 }}
+                        animate={{ height: `${percentageHeight}%` }}
+                        transition={{ duration: 0.6, delay: index * 0.05, ease: "easeOut" }}
                         className="w-full max-w-[20px] rounded-t-[3px] bg-gradient-to-t from-[#C2693F] to-[#D9A05B] group-hover:from-[#A3522E] group-hover:to-[#C2693F] transition-all duration-300"
                       />
                     </div>
@@ -145,10 +192,13 @@ export default function Overview() {
               </div>
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Category Pie/Doughnut Chart representation (1/3 width) */}
-        <div className="bg-[#EDE9E1] border border-[#D6CFC4] rounded-[10px] p-6 shadow-[0_2px_12px_rgba(30,30,30,0.04)] font-['DM_Sans']">
+        <motion.div 
+          variants={itemVariants}
+          className="bg-[#EDE9E1] border border-[#D6CFC4] rounded-[10px] p-6 shadow-[0_2px_12px_rgba(30,30,30,0.04)] font-['DM_Sans']"
+        >
           <div className="mb-6">
             <h3 className="font-['Cormorant_Garamond'] text-xl font-bold text-[#1E1E1E]">Artworks by Category</h3>
             <p className="text-xs text-[#6B6560]">Distribution of sold items in catalog</p>
@@ -175,9 +225,12 @@ export default function Overview() {
                         <span className="font-mono text-[#6B6560]">{cat.value} arts ({percentage}%)</span>
                       </div>
                       <div className="w-full h-2 bg-[#F7F4EF] rounded-full overflow-hidden border border-[#D6CFC4]">
-                        <div 
-                          style={{ width: `${percentage}%`, backgroundColor: color }} 
-                          className="h-full rounded-full transition-all duration-500"
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${percentage}%` }}
+                          transition={{ duration: 0.8, delay: idx * 0.1, ease: "easeOut" }}
+                          style={{ backgroundColor: color }} 
+                          className="h-full rounded-full"
                         />
                       </div>
                     </div>
@@ -191,8 +244,8 @@ export default function Overview() {
               </div>
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
