@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { stripe } from '../../lib/stripe';
 
+import { MongoClient, ObjectId } from 'mongodb';
+
 export default async function Success({ searchParams }) {
   const { session_id } = await searchParams;
 
@@ -9,18 +11,48 @@ export default async function Success({ searchParams }) {
     throw new Error('Please provide a valid session_id (`cs_test_...`)');
   }
 
-  const {
-    status,
-    customer_details: { email: customerEmail }
-  } = await stripe.checkout.sessions.retrieve(session_id, {
-    expand: ['line_items', 'payment_intent']
+  const session = await stripe.checkout.sessions.retrieve(session_id, {
+    expand: ['line_items']
   });
+
+  const { status, customer_details } = session;
+  const customerEmail = customer_details?.email;
 
   if (status === 'open') {
     return redirect('/');
   }
 
   if (status === 'complete') {
+    // Determine plan type from the Price ID
+    const lineItems = session.line_items?.data || [];
+    const priceId = lineItems[0]?.price?.id;
+    const planName = priceId === 'price_1TkM043r2bTEFkmmtLTzhJ0X' ? 'premium' : 'pro';
+
+    // Retrieve user identification from metadata / client_reference_id
+    const userId = session.client_reference_id || session.metadata?.userId;
+
+    if (userId || customerEmail) {
+      const client = new MongoClient(process.env.MONGO_URI);
+      await client.connect();
+      const db = client.db("ArtHub");
+
+      const query = {};
+      if (userId) {
+        try {
+          query._id = new ObjectId(userId);
+        } catch (e) {
+          query._id = userId;
+        }
+      } else {
+        query.email = customerEmail;
+      }
+
+      await db.collection("user").updateOne(
+        query,
+        { $set: { plan: planName } }
+      );
+      await client.close();
+    }
     return (
       <div className="min-h-[calc(100vh-200px)] flex items-center justify-center bg-[#F7F4EF] px-4 py-12">
         <div className="max-w-md w-full bg-[#EDE9E1] border border-[#D6CFC4] rounded-[12px] p-8 text-center shadow-[0_4px_24px_rgba(30,30,30,0.06)] font-['DM_Sans']">

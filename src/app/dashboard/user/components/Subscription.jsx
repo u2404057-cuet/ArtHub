@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 import { useState } from "react";
 import { Check } from "@gravity-ui/icons";
@@ -154,24 +155,17 @@ export default function Subscription() {
 
               {/* Action Button */}
               <div>
-                {isCurrent ? (<>
+                {isCurrent ? (
                   <div className="w-full h-11 inline-flex items-center justify-center bg-[#D6CFC4] text-[#6B6560] text-sm font-semibold rounded-[6px] cursor-default">
                     Current Plan
                   </div>
-                    <form action="/api/checkout_sessions" method="POST" className="w-full">
-                      <input 
-                        type="hidden" 
-                        name="priceId" 
-                        value={plan.name === "Pro" ? "price_1TkLaS3r2bTEFkmmoN8FZVnl" : "price_1TkM043r2bTEFkmmtLTzhJ0X"} 
-                      />
-                      <button 
-                        type="submit" 
-                        role="link" 
-                        className={`w-full h-11 inline-flex items-center justify-center text-sm font-semibold rounded-[6px] transition-colors duration-200 cursor-pointer ${plan.buttonColor}`}
-                      >
-                        Upgrade to {plan.name}
-                      </button>
-                    </form>
+                ) : (
+                  <Link 
+                    href="/pricing"
+                    className={`w-full h-11 inline-flex items-center justify-center text-sm font-semibold rounded-[6px] transition-colors duration-200 cursor-pointer ${plan.buttonColor}`}
+                  >
+                    Upgrade to {plan.name}
+                  </Link>
                 )}
               </div>
             </div>

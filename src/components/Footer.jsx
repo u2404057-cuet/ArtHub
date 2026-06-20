@@ -67,6 +67,7 @@ export default function Footer() {
                 type="email"
                 placeholder="Email address"
                 required
+                suppressHydrationWarning
                 className="w-full px-4 py-2 text-sm bg-[#F7F4EF] border border-[#D6CFC4] rounded-l-[6px] text-[#1E1E1E] focus:outline-none focus:border-[#C2693F] transition-colors font-['DM_Sans'] placeholder:text-[#6B6560]/70"
               />
               <button

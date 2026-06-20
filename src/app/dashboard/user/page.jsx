@@ -154,6 +154,9 @@ export default function UserDashboard() {
               <p className="font-['DM_Sans'] text-sm font-semibold text-[#1E1E1E] truncate leading-none">{user.name}</p>
               <p className="font-['DM_Sans'] text-xs text-[#6B6560] truncate mt-1">{user.email}</p>
             </div>
+            <div>
+              <h1 className="font-['DM_Sans'] text-xs text-[#6B6560] truncate mt-1 border p-4 rounded-2xl">{user?.plan}</h1>
+            </div>
           </div>
         )}
       </aside>

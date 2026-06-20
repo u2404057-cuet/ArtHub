@@ -3,6 +3,8 @@ import { headers } from 'next/headers'
 
 import { stripe } from '../../../lib/stripe'
 
+import { auth } from '@/lib/auth'
+
 export async function POST(req) {
   try {
     const formData = await req.formData()
@@ -10,8 +12,26 @@ export async function POST(req) {
     const headersList = await headers()
     const origin = headersList.get('origin')
 
+    // Fetch user session to bind this Stripe payment to the correct account
+    let userSession = null;
+    try {
+      userSession = await auth.api.getSession({
+        headers: headersList,
+      });
+    } catch (e) {
+      console.error("Failed to get session during checkout session creation:", e);
+    }
+
+    const userId = userSession?.user?.id;
+    const userEmail = userSession?.user?.email;
+
     // Create Checkout Sessions from body params.
     const session = await stripe.checkout.sessions.create({
+      client_reference_id: userId,
+      metadata: {
+        userId: userId || "",
+        userEmail: userEmail || "",
+      },
       line_items: [
         {
           price: priceId,

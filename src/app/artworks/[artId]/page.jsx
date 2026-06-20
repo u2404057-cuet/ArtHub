@@ -4,6 +4,7 @@ import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getData } from "@/lib/action/dataFetch";
+import BuyButton from "./components/BuyButton";
 
 export async function generateMetadata({ params }) {
   const { artId } = await params;
@@ -119,11 +120,7 @@ export default async function ArtworkDetailsPage({ params }) {
 
             {/* CTAs */}
             <div className="pt-4">
-              <button 
-                className="w-full h-11 px-5 inline-flex items-center justify-center bg-[#C2693F] text-[#F7F4EF] text-sm font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#A3522E] transition-colors duration-200 cursor-pointer shadow-sm"
-              >
-                Buy Artwork
-              </button>
+              <BuyButton artworkId={artId} />
             </div>
           </div>
         </div>
