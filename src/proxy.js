@@ -5,7 +5,8 @@ export function proxy(request) {
 
   // Protect all dashboard routes
   if (pathname.startsWith('/dashboard')) {
-    const sessionToken = request.cookies.get('better-auth.session_token');
+    const sessionToken = request.cookies.get('better-auth.session_token') || 
+                         request.cookies.get('__Secure-better-auth.session_token');
 
     // If not logged in, redirect to login page
     if (!sessionToken) {
