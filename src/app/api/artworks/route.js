@@ -11,8 +11,8 @@ export async function GET(req) {
       headers: await headers(),
     });
 
-    if (!session || !session.user || session.user.role !== "artist") {
-      return NextResponse.json({ error: "Unauthorized. Artist role required." }, { status: 401 });
+    if (!session || !session.user || (session.user.role !== "artist" && session.user.role !== "admin")) {
+      return NextResponse.json({ error: "Unauthorized. Artist or Admin role required." }, { status: 401 });
     }
 
     // Call the backend server "/arts" API route to get all artworks
