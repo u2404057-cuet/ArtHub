@@ -154,18 +154,26 @@ export default function Subscription() {
 
               {/* Action Button */}
               <div>
-                {isCurrent ? (
+                {isCurrent ? (<>
                   <div className="w-full h-11 inline-flex items-center justify-center bg-[#D6CFC4] text-[#6B6560] text-sm font-semibold rounded-[6px] cursor-default">
                     Current Plan
                   </div>
-                ) : (
+                </>) : (
+                    <>
+                    <form action="/api/checkout_sessions" method="POST">
+      <section>
+        <button type="submit" role="link" className="w-full h-11 inline-flex items-center justify-center bg-[#D6CFC4] text-[#6B6560] text-sm font-semibold rounded-[6px] cursor-default">
+          Checkout
+        </button>
+      </section>
+    </form>
                   <button
                     onClick={() => handleUpgrade(plan.name)}
                     disabled={loadingPlan !== null}
                     className={`w-full h-11 inline-flex items-center justify-center text-sm font-semibold rounded-[6px] transition-colors duration-200 cursor-pointer disabled:opacity-50 ${plan.buttonColor}`}
                   >
                     {loadingPlan === plan.name ? "Processing..." : `Choose ${plan.name}`}
-                  </button>
+                  </button></>
                 )}
               </div>
             </div>
