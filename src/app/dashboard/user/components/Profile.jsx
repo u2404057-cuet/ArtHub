@@ -31,12 +31,26 @@ export default function Profile() {
   const onUpdateProfile = async (data) => {
     setUpdateStatus({ success: null, message: "" });
     try {
-      // Simulate profile update API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
+      const res = await fetch("/api/user/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: data.name,
+          image: data.image,
+        }),
+      });
+
+      const responseData = await res.json();
+
+      if (!res.ok) {
+        throw new Error(responseData.error || "Failed to update profile details.");
+      }
+
       setUpdateStatus({
         success: true,
-        message: "Profile updated successfully! (Reflected on next session refresh)",
+        message: "Profile updated successfully! Refresh the page to see changes in the header.",
       });
       if (updateSession) {
         await updateSession();

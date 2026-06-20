@@ -1,21 +1,57 @@
-import Image from "next/image";
-import Link from "next/link";
+"use client";
+
+import { useState, useEffect } from "react";
+import BoughtArtCard from "./BoughtArtCard";
 
 export default function ArtworksBrought() {
-  const boughtArtworks = [
-    {
-      _id: "art-1",
-      title: "Silent Sunlight",
-      artistName: "Clara Thorne",
-      imageUrl: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=600&auto=format&fit=crop"
-    },
-    {
-      _id: "art-3",
-      title: "Ocean Whisperings",
-      artistName: "Elena Rostova",
-      imageUrl: "https://images.unsplash.com/photo-1501472312651-726afd116ff1?q=80&w=600&auto=format&fit=crop"
-    }
-  ];
+  const [boughtArtworks, setBoughtArtworks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchBoughtArtworks = async () => {
+      try {
+        const res = await fetch("/api/user/purchased");
+        if (!res.ok) {
+          throw new Error("Failed to fetch purchased artworks");
+        }
+        const data = await res.json();
+        setBoughtArtworks(data.boughtArtworks || []);
+      } catch (err) {
+        console.error("Error fetching bought artworks:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBoughtArtworks();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="font-['Cormorant_Garamond'] text-3xl font-semibold text-[#1E1E1E]">Bought Artworks</h2>
+          <p className="font-['DM_Sans'] text-sm text-[#6B6560] mt-1">Your personal collected vault of original visual crafts.</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {[1, 2].map((i) => (
+            <div key={i} className="animate-pulse bg-[#EDE9E1] rounded-[8px] overflow-hidden border border-[#D6CFC4]/50 h-72">
+              <div className="bg-[#D6CFC4] aspect-[4/3] w-full" />
+              <div className="p-5 flex justify-between items-center gap-4">
+                <div className="space-y-2 flex-1">
+                  <div className="h-4 bg-[#D6CFC4] rounded w-3/4" />
+                  <div className="h-3 bg-[#D6CFC4] rounded w-1/2" />
+                </div>
+                <div className="h-8 w-20 bg-[#D6CFC4] rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -24,38 +60,24 @@ export default function ArtworksBrought() {
         <p className="font-['DM_Sans'] text-sm text-[#6B6560] mt-1">Your personal collected vault of original visual crafts.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {boughtArtworks.map((artwork) => (
-          <div 
-            key={artwork._id}
-            className="group bg-[#EDE9E1] rounded-[8px] overflow-hidden shadow-[0_2px_12px_rgba(30,30,30,0.07)] border border-[#D6CFC4]/50"
-          >
-            {/* Aspect Ratio 4:3 */}
-            <div className="w-full aspect-[4/3] relative overflow-hidden bg-zinc-200">
-              <Image
-                src={artwork.imageUrl}
-                alt={artwork.title}
-                fill
-                sizes="(max-width: 640px) 100vw, 33vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            </div>
-            
-            <div className="p-5 flex justify-between items-center gap-4">
-              <div>
-                <h3 className="font-['DM_Sans'] font-semibold text-[16px] text-[#1E1E1E] truncate">{artwork.title}</h3>
-                <p className="font-['DM_Sans'] text-xs text-[#6B6560] font-light">by {artwork.artistName}</p>
-              </div>
-              <Link
-                href={`/artworks/${artwork._id}`}
-                className="h-8 px-4 inline-flex items-center justify-center border border-[#D6CFC4] bg-transparent text-[#1E1E1E] text-xs font-['DM_Sans'] font-medium rounded-[6px] hover:bg-[#F7F4EF] hover:border-[#C2693F] hover:text-[#C2693F] transition-colors duration-200 cursor-pointer"
-              >
-                Details
-              </Link>
-            </div>
-          </div>
-        ))}
-      </div>
+      {error ? (
+        <div className="p-4 rounded-[6px] bg-red-50 text-red-800 border border-red-200 text-sm font-['DM_Sans']">
+          Error loading purchased artworks: {error}
+        </div>
+      ) : boughtArtworks.length === 0 ? (
+        <div className="text-center py-16 bg-[#EDE9E1] border border-dashed border-[#D6CFC4] rounded-[8px] p-6 font-['DM_Sans']">
+          <p className="text-base text-[#1E1E1E] font-medium">No Purchased Artworks</p>
+          <p className="text-xs text-[#6B6560] mt-1.5 max-w-xs mx-auto">
+            You haven&apos;t added any artworks to your collection yet. Browse the gallery to find your first masterpiece!
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {boughtArtworks.map((artwork) => (
+            <BoughtArtCard key={artwork._id || artwork.id} artwork={artwork} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
