@@ -67,7 +67,7 @@ export default function Login() {
       });
     } catch (err) {
       console.error(err);
-      alert("Failed to initiate Google sign-in.");
+      setErrorMsg("Failed to initiate Google sign-in.");
     }
   };
 

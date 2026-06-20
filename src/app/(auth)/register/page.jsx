@@ -32,9 +32,7 @@ export default function Register() {
         email: data.email,
         password: data.password,
         name: data.name,
-        data: {
-          role: data.role,
-        },
+        role: data.role,
         dontRedirect: true,
       });
       
@@ -73,7 +71,7 @@ export default function Register() {
       });
     } catch (err) {
       console.error(err);
-      alert("Failed to initiate Google sign-in.");
+      setErrorMsg("Failed to initiate Google sign-in.");
     }
   };
 

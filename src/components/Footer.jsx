@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 
 export default function Footer() {
+  const [subscribed, setSubscribed] = useState(false);
   const currentYear = new Date().getFullYear();
 
   return (
@@ -59,24 +61,30 @@ export default function Footer() {
             <p className="text-sm text-[#6B6560] font-['DM_Sans'] leading-relaxed">
               Subscribe to receive updates on new exhibitions and artist spotlights.
             </p>
-            <form className="flex max-w-sm" onSubmit={(e) => {
-              e.preventDefault();
-              alert("Thank you for subscribing!");
-            }}>
-              <input
-                type="email"
-                placeholder="Email address"
-                required
-                suppressHydrationWarning
-                className="w-full px-4 py-2 text-sm bg-[#F7F4EF] border border-[#D6CFC4] rounded-l-[6px] text-[#1E1E1E] focus:outline-none focus:border-[#C2693F] transition-colors font-['DM_Sans'] placeholder:text-[#6B6560]/70"
-              />
-              <button
-                type="submit"
-                className="h-10 px-5 bg-[#C2693F] hover:bg-[#A3522E] text-[#F7F4EF] text-sm font-['DM_Sans'] font-medium rounded-r-[6px] transition-colors cursor-pointer"
-              >
-                Join
-              </button>
-            </form>
+            {subscribed ? (
+              <p className="text-sm font-semibold text-[#C2693F] animate-fade-in">
+                ✓ Thank you for subscribing to our letter!
+              </p>
+            ) : (
+              <form className="flex max-w-sm" onSubmit={(e) => {
+                e.preventDefault();
+                setSubscribed(true);
+              }}>
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  required
+                  suppressHydrationWarning
+                  className="w-full px-4 py-2 text-sm bg-[#F7F4EF] border border-[#D6CFC4] rounded-l-[6px] text-[#1E1E1E] focus:outline-none focus:border-[#C2693F] transition-colors font-['DM_Sans'] placeholder:text-[#6B6560]/70"
+                />
+                <button
+                  type="submit"
+                  className="h-10 px-5 bg-[#C2693F] hover:bg-[#A3522E] text-[#F7F4EF] text-sm font-['DM_Sans'] font-medium rounded-r-[6px] transition-colors cursor-pointer"
+                >
+                  Join
+                </button>
+              </form>
+            )}
           </div>
         </div>
 
