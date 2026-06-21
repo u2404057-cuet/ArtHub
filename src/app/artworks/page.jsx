@@ -4,6 +4,7 @@ import ArtCard from "@/components/ArtCard";
 import FilterPanel from "./components/FilterPanel";
 import { getData } from "@/lib/action/dataFetch";
 import Link from "next/link";
+import ErrorNotifier from "@/components/ErrorNotifier";
 
 // Fallback artworks in case the database is empty initially
 const fallbackArtworks = [
@@ -64,10 +65,12 @@ export default async function ArtworksPage({ searchParams }) {
   queryParams.set("limit", limitNum.toString());
   
   let dbArtworksData = { artworks: [], currentPage: 1, totalPages: 1, totalItems: 0 };
+  let fetchError = false;
   try {
     dbArtworksData = await getData(`/arts?${queryParams.toString()}`);
   } catch (err) {
     console.error("Failed to fetch artworks:", err.message);
+    fetchError = true;
   }
 
   // Handle case where API might return an array instead of paginated object, or object is empty
@@ -100,6 +103,7 @@ export default async function ArtworksPage({ searchParams }) {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F7F4EF] animate-fade-in">
+      <ErrorNotifier message={fetchError ? "Failed to load artworks" : null} />
       {/* Navigation Header */}
       <Navbar />
 
