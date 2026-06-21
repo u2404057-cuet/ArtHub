@@ -17,12 +17,18 @@ async function checkAdmin() {
 
 export async function GET(req) {
   try {
-    const isAdmin = await checkAdmin();
-    if (!isAdmin) {
+    const session = await checkAdmin();
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized. Admin role required." }, { status: 401 });
     }
 
-    const res = await fetch(`${serverURL}/admin/users`, { cache: "no-store" });
+    const token = session.session.token;
+    const res = await fetch(`${serverURL}/admin/users`, {
+      cache: "no-store",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
     if (!res.ok) {
       throw new Error("Failed to fetch users from backend");
     }
@@ -36,8 +42,8 @@ export async function GET(req) {
 
 export async function PUT(req) {
   try {
-    const isAdmin = await checkAdmin();
-    if (!isAdmin) {
+    const session = await checkAdmin();
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized. Admin role required." }, { status: 401 });
     }
 
@@ -46,9 +52,13 @@ export async function PUT(req) {
       return NextResponse.json({ error: "userId and role are required." }, { status: 400 });
     }
 
+    const token = session.session.token;
     const res = await fetch(`${serverURL}/admin/users/${userId}/role`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify({ role }),
     });
 

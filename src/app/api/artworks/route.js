@@ -70,10 +70,14 @@ export async function POST(req) {
       createdAt: new Date().toISOString(),
     };
 
+    const token = session.session.token;
     // Call the backend server "/arts" POST API route to create the artwork
     const artsRes = await fetch(`${serverURL}/arts`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify(payload),
     });
 
@@ -115,10 +119,14 @@ export async function PUT(req) {
       imageUrl,
     };
 
+    const token = session.session.token;
     // Update via backend PUT route `/arts/:id`
     const artsRes = await fetch(`${serverURL}/arts/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify(updateFields),
     });
 
@@ -149,9 +157,13 @@ export async function DELETE(req) {
       return NextResponse.json({ error: "Artwork ID is required." }, { status: 400 });
     }
 
+    const token = session.session.token;
     // Delete via backend DELETE route `/arts/:id`
     const artsRes = await fetch(`${serverURL}/arts/${id}`, {
       method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
     });
 
     if (!artsRes.ok) {

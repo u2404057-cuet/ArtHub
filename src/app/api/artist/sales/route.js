@@ -16,7 +16,13 @@ export async function GET(req) {
     const artistId = session.user.id || session.user._id || "";
     const email = session.user.email;
 
-    const res = await fetch(`${serverURL}/artist-sales?email=${encodeURIComponent(email)}&artistId=${encodeURIComponent(artistId)}`, { cache: "no-store" });
+    const token = session.session.token;
+    const res = await fetch(`${serverURL}/artist-sales?email=${encodeURIComponent(email)}&artistId=${encodeURIComponent(artistId)}`, { 
+      cache: "no-store",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
     if (!res.ok) {
       throw new Error("Failed to fetch sales history from backend server");
     }

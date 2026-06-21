@@ -14,7 +14,13 @@ export async function GET(req) {
       return NextResponse.json({ error: "Unauthorized. Admin role required." }, { status: 401 });
     }
 
-    const res = await fetch(`${serverURL}/admin/transactions`, { cache: "no-store" });
+    const token = session.session.token;
+    const res = await fetch(`${serverURL}/admin/transactions`, {
+      cache: "no-store",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
     if (!res.ok) {
       throw new Error("Failed to fetch transactions from backend");
     }

@@ -10,11 +10,19 @@ export async function GET(req) {
       headers: await headers(),
     });
 
+    console.log("SESSION OBJECT:", JSON.stringify(session, null, 2));
+
     if (!session || !session.user || session.user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized. Admin role required." }, { status: 401 });
     }
 
-    const res = await fetch(`${serverURL}/admin/analytics`, { cache: "no-store" });
+    const token = session.session.token;
+    const res = await fetch(`${serverURL}/admin/analytics`, {
+      cache: "no-store",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
     if (!res.ok) {
       throw new Error("Failed to fetch analytics from backend");
     }

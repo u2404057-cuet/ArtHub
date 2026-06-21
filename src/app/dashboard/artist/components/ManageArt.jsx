@@ -56,7 +56,10 @@ export default function ManageArt() {
     try {
       const res = await fetch("/api/artworks", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json",
+            ... await authHeader()
+         },
         body: JSON.stringify({ id }),
       });
       const data = await res.json();
