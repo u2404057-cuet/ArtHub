@@ -147,7 +147,7 @@ export default function ManageArt() {
               Confirm Delete
             </h3>
             <p className="text-sm text-[#6B6560] leading-relaxed mb-6">
-              Are you sure you want to delete the artwork <strong className="text-[#1E1E1E]">"{artToDelete?.title}"</strong>? This action cannot be undone.
+              Are you sure you want to delete the artwork <strong className="text-[#1E1E1E]">{artToDelete?.title}</strong>? This action cannot be undone.
             </p>
             <div className="flex gap-3 justify-end">
               <button
