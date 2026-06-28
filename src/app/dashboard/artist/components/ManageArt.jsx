@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Plus, Check, Xmark } from "@gravity-ui/icons";
+import { createPortal } from "react-dom";
 
 export default function ManageArt() {
   const router = useRouter();
@@ -14,6 +15,11 @@ export default function ManageArt() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [artToDelete, setArtToDelete] = useState(null);
   const [toast, setToast] = useState({ type: "", message: "" });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchArtworks = async () => {
     try {
@@ -153,7 +159,7 @@ export default function ManageArt() {
       )}
 
       {/* Confirmation Modal */}
-      {isConfirmOpen && (
+      {mounted && typeof window !== "undefined" && isConfirmOpen && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div 
             className="fixed inset-0 bg-[#1E1E1E]/40 backdrop-blur-sm transition-opacity duration-300"
@@ -181,11 +187,12 @@ export default function ManageArt() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Custom Floating Toast Alert */}
-      {toast.message && (
+      {mounted && typeof window !== "undefined" && toast.message && createPortal(
         <div className={`fixed bottom-6 right-6 z-[110] max-w-xs w-full bg-[#EDE9E1] border-l-4 rounded-[6px] p-4 shadow-[0_4px_20px_rgba(30,30,30,0.15)] flex items-start justify-between gap-3 animate-in slide-in-from-bottom-5 duration-300 font-['DM_Sans'] text-xs ${
           toast.type === "success" ? "border-[#C2693F]" : "border-red-600"
         }`}>
@@ -210,7 +217,8 @@ export default function ManageArt() {
           >
             <Xmark className="w-4 h-4" />
           </button>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

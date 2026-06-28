@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Check, Xmark } from "@gravity-ui/icons";
+import { createPortal } from "react-dom";
 
 export default function ArtCard({ artwork }) {
   const { data: session } = useSession();
@@ -16,6 +17,11 @@ export default function ArtCard({ artwork }) {
   const [showToast, setShowToast] = useState(false);
   const [toastConfig, setToastConfig] = useState({ type: "success", message: "" });
   const [purchasing, setPurchasing] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Safe fallbacks and database property mapping
   const id = artwork?._id || artwork?.id || "#";
@@ -144,7 +150,7 @@ export default function ArtCard({ artwork }) {
       </div>
 
       {/* Confirmation Modal */}
-      {isModalOpen && (
+      {mounted && typeof window !== "undefined" && isModalOpen && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div 
             className="fixed inset-0 bg-[#1E1E1E]/40 backdrop-blur-sm transition-opacity duration-300"
@@ -172,11 +178,12 @@ export default function ArtCard({ artwork }) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Custom Premium Toast Alert */}
-      {showToast && (
+      {mounted && typeof window !== "undefined" && showToast && createPortal(
         <div className="fixed bottom-6 right-6 z-[110] max-w-xs w-full bg-[#EDE9E1] border-l-4 rounded-[6px] p-4 shadow-[0_4px_20px_rgba(30,30,30,0.15)] flex items-start justify-between gap-3 animate-in slide-in-from-bottom-5 duration-300 font-['DM_Sans'] text-xs border-[#C2693F]">
           <div className="flex gap-2">
             {toastConfig.type === "success" ? (
@@ -199,7 +206,8 @@ export default function ArtCard({ artwork }) {
           >
             <Xmark className="w-4 h-4" />
           </button>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
